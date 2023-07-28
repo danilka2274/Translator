@@ -6,22 +6,29 @@ import android.text.TextWatcher
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.translator.R
+import com.example.translator.application.TranslatorApp
 import com.example.translator.databinding.ActivityMainBinding
 import com.example.translator.model.data.AppState
 import com.example.translator.model.data.DataModel
-import com.example.translator.presenter.Presenter
 import com.example.translator.view.base.BaseActivity
-import com.example.translator.view.base.View
 import com.example.translator.view.main.adapter.MainAdapter
+import javax.inject.Inject
 
+class MainActivity : BaseActivity<AppState, MainInteractor>() {
 
-class MainActivity : BaseActivity<AppState>() {
+    @Inject
+    internal lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    override val model: MainViewModel by lazy {
+        ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+    }
 
     private lateinit var binding: ActivityMainBinding
 
-    private var adapter: MainAdapter? = null
+    private val adapter: MainAdapter by lazy { MainAdapter(onListItemClickListener) }
     private val onListItemClickListener: MainAdapter.OnListItemClickListener =
         object : MainAdapter.OnListItemClickListener {
             override fun onItemClick(data: DataModel) {
@@ -37,42 +44,37 @@ class MainActivity : BaseActivity<AppState>() {
             if (binding.searchEditText.text != null && binding.searchEditText.text.toString()
                     .isNotEmpty()
             ) {
-                presenter.getData(binding.searchEditText.text.toString(), true)
+                model.getData(binding.searchEditText.text.toString(), true)
             }
         }
 
         override fun afterTextChanged(s: Editable?) {
         }
-
-    }
-
-    override fun createPresenter(): Presenter<View> {
-        return MainPresenterImpl()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        TranslatorApp.component.inject(this)
+        model.subscribe().observe(this, { renderData(it) })
         binding.searchEditText.addTextChangedListener(textWatcher)
+        binding.recyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        binding.recyclerView.adapter = adapter
     }
 
     override fun renderData(appState: AppState) {
         when (appState) {
             is AppState.Success -> {
-                val dataModel = appState.data
-                if (dataModel.isNullOrEmpty()) {
-                    showErrorScreen(getString(R.string.empty_server_response_on_success))
+                showViewWorking()
+                val data = appState.data
+                if (data.isNullOrEmpty()) {
+                    showAlertDialog(
+                        getString(R.string.dialog_tittle_sorry),
+                        getString(R.string.empty_server_response_on_success)
+                    )
                 } else {
-                    showViewSuccess()
-                    if (adapter == null) {
-                        binding.mainActivityRecyclerview.layoutManager =
-                            LinearLayoutManager(applicationContext)
-                        binding.mainActivityRecyclerview.adapter =
-                            MainAdapter(onListItemClickListener, dataModel)
-                    } else {
-                        adapter!!.setData(dataModel)
-                    }
+                    adapter.setData(data)
                 }
             }
             is AppState.Loading -> {
@@ -87,34 +89,17 @@ class MainActivity : BaseActivity<AppState>() {
                 }
             }
             is AppState.Error -> {
-                showErrorScreen(appState.error.message)
+                showViewWorking()
+                showAlertDialog(getString(R.string.error_stub), appState.error.message)
             }
         }
     }
 
-    private fun showErrorScreen(error: String?) {
-        showViewError()
-        binding.errorTextview.text = error ?: getString(R.string.undefined_error)
-        binding.reloadButton.setOnClickListener {
-            presenter.getData("hi", true)
-        }
-    }
-
-    private fun showViewSuccess() {
-        binding.successLinearLayout.visibility = VISIBLE
+    private fun showViewWorking() {
         binding.loadingFrameLayout.visibility = GONE
-        binding.errorLinearLayout.visibility = GONE
     }
 
     private fun showViewLoading() {
-        binding.successLinearLayout.visibility = GONE
         binding.loadingFrameLayout.visibility = VISIBLE
-        binding.errorLinearLayout.visibility = GONE
-    }
-
-    private fun showViewError() {
-        binding.successLinearLayout.visibility = GONE
-        binding.loadingFrameLayout.visibility = GONE
-        binding.errorLinearLayout.visibility = VISIBLE
     }
 }

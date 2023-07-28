@@ -1,9 +1,9 @@
-package com.example.translator.model.datasource
+package com.example.translator.model.data.api
 
-import com.example.translator.model.data.DataModel
 import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query
+import com.example.translator.model.data.DataModel
 
 interface ApiService {
     @GET("words/search")

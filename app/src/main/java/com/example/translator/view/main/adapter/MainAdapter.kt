@@ -1,5 +1,6 @@
 package com.example.translator.view.main.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +11,10 @@ import com.example.translator.model.data.DataModel
 
 class MainAdapter(
     private var onListItemClickListener: OnListItemClickListener,
-    private var data: List<DataModel>
-) :
-    RecyclerView.Adapter<MainAdapter.RecyclerItemViewHolder>() {
+) : RecyclerView.Adapter<MainAdapter.RecyclerItemViewHolder>() {
+    private var data: List<DataModel>? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(data: List<DataModel>) {
         this.data = data
         notifyDataSetChanged()
@@ -27,11 +28,11 @@ class MainAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerItemViewHolder, position: Int) {
-        holder.bind(data.get(position))
+        data?.get(position)?.let { holder.bind(it) }
     }
 
     override fun getItemCount(): Int {
-        return data.size
+        return data?.size ?: 0
     }
 
     inner class RecyclerItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
