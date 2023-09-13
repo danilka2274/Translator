@@ -6,7 +6,7 @@ import kotlinx.coroutines.*
 import com.example.translator.model.data.AppState
 
 abstract class BaseViewModel<T : AppState>(
-    protected open val mutableLiveData: MutableLiveData<T> = MutableLiveData(),
+    protected open val _mutableLiveData: MutableLiveData<T> = MutableLiveData(),
 ) : ViewModel() {
 
     protected val viewModelCoroutineScope = CoroutineScope(
