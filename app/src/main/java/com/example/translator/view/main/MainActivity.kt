@@ -7,15 +7,15 @@ import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.core.BaseActivity
+import com.example.model.AppState
+import com.example.model.DataModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.example.translator.R
 import com.example.translator.databinding.ActivityMainBinding
-import com.example.translator.model.data.AppState
-import com.example.translator.model.data.DataModel
-import com.example.translator.utils.network.isOnline
-import com.example.translator.view.base.BaseActivity
 import com.example.translator.view.descriptionscreen.DescriptionActivity
 import com.example.translator.view.history.HistoryActivity
+import com.example.utils.network.isOnline
 
 class MainActivity : BaseActivity<AppState, MainInteractor>() {
 

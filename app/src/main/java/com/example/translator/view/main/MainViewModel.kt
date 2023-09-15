@@ -1,12 +1,12 @@
 package com.example.translator.view.main
 
 import androidx.lifecycle.LiveData
+import com.example.core.viewmodel.BaseViewModel
+import com.example.model.AppState
+import com.example.repository.parseOnlineSearchResults
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.example.translator.model.data.AppState
-import com.example.translator.utils.parseOnlineSearchResults
-import com.example.translator.viewmodel.BaseViewModel
 
 class MainViewModel(private val interactor: MainInteractor) :
     BaseViewModel<AppState>() {

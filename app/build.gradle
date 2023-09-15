@@ -1,21 +1,19 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
     id 'kotlin-kapt'
-
-
 }
 
 android {
     namespace 'com.example.translator'
-    compileSdk 33
+    compileSdk Config.compile_sdk
 
     defaultConfig {
-        applicationId "com.example.translator"
-        minSdk 29
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        applicationId Config.application_id
+        minSdk Config.min_sdk
+        targetSdk Config.target_sdk
+        versionCode Releases.version_code
+        versionName Releases.version_name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -25,57 +23,50 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    kotlin {
-        jvmToolchain(17)
-    }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility Config.java_version
+        targetCompatibility Config.java_version
     }
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = Config.jvm_target
     }
-
     buildFeatures {
-        viewBinding true
+        viewBinding Config.view_binding
     }
-
 }
 
 dependencies {
-    def koin_version = "3.1.4"
-    def lifecycle_version = "2.4.0"
-    def room_version = "2.5.2"
+    //Modules
+    implementation project(Modules.core)
+    implementation project(Modules.model)
+    implementation project(Modules.repository)
+    implementation project(Modules.utils)
 
-    implementation 'androidx.core:core-ktx:1.10.1'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    //AndroidX
+    implementation Design.appcompat
 
-    // ViewModel, LiveData
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+    //Design
+    implementation Design.material
+    implementation Design.swipe_refresh_layout
 
-    // Koin
-    implementation "io.insert-koin:koin-core:$koin_version"
-    implementation "io.insert-koin:koin-android:$koin_version"
+    //Kotlin
+    implementation Kotlin.core
 
-    // Retrofit 2
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.3'
-    implementation 'com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2'
+    //Koin for Android
+    implementation Koin.koin_core
+    implementation Koin.koin_android
 
-    // Room
-    implementation "androidx.room:room-ktx:2.5.2"
-    implementation "androidx.room:room-runtime:2.5.2"
-    kapt "androidx.room:room-compiler:$room_version"
+    //Room
+    implementation Room.runtime
+    kapt Room.compiler
+    implementation Room.room_ktx
 
-    // Coil
-    implementation 'io.coil-kt:coil:1.4.0'
+    //Coil
+    implementation Coil.coil
 
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    //Test
+    testImplementation TestImpl.junit
+    androidTestImplementation TestImpl.runner
+    androidTestImplementation TestImpl.espresso
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }

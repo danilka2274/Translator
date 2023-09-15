@@ -1,0 +1,28 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+}
+
+android{
+    namespace 'com.example.model'
+}
+
+
+dependencies {
+    implementation project(Modules.utils)
+
+    //AndroidX
+    implementation Design.appcompat
+
+    //Kotlin
+    implementation Kotlin.core
+
+    //Retrofit 2
+    implementation Retrofit.converter_gson
+
+    //Test
+    testImplementation TestImpl.junit
+    androidTestImplementation TestImpl.runner
+    androidTestImplementation TestImpl.espresso
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}

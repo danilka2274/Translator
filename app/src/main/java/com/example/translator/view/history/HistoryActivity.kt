@@ -1,10 +1,10 @@
 package com.example.translator.view.history
 
 import android.os.Bundle
+import com.example.core.BaseActivity
+import com.example.model.AppState
+import com.example.model.DataModel
 import com.example.translator.databinding.ActivityHistoryBinding
-import com.example.translator.model.data.AppState
-import com.example.translator.model.data.DataModel
-import com.example.translator.view.base.BaseActivity
 import com.example.translator.view.descriptionscreen.DescriptionActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

@@ -7,15 +7,15 @@ import android.view.MenuItem
 import android.widget.ImageView
 import coil.load
 import coil.transform.RoundedCornersTransformation
+import com.example.core.BaseActivity
+import com.example.model.AppState
+import com.example.model.DataModel
+import com.example.repository.convertMeaningsToString
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.example.translator.R
 import com.example.translator.databinding.ActivityDescriptionBinding
-import com.example.translator.model.data.AppState
-import com.example.translator.model.data.DataModel
-import com.example.translator.utils.convertMeaningsToString
-import com.example.translator.utils.network.isOnline
-import com.example.translator.utils.ui.AlertDialogFragment
-import com.example.translator.view.base.BaseActivity
+import com.example.utils.network.isOnline
+import com.example.utils.ui.AlertDialogFragment
 
 class DescriptionActivity : BaseActivity<AppState, DescriptionInteractor>() {
 

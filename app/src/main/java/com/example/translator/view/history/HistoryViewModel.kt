@@ -1,10 +1,10 @@
 package com.example.translator.view.history
 
 import androidx.lifecycle.LiveData
+import com.example.core.viewmodel.BaseViewModel
+import com.example.model.AppState
+import com.example.repository.parseLocalSearchResults
 import kotlinx.coroutines.launch
-import com.example.translator.model.data.AppState
-import com.example.translator.utils.parseLocalSearchResults
-import com.example.translator.viewmodel.BaseViewModel
 
 class HistoryViewModel(private val interactor: HistoryInteractor) :
     BaseViewModel<AppState>() {

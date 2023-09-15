@@ -1,0 +1,22 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+dependencies {
+
+    android{
+        namespace 'com.example.utils'
+    }
+
+    //AndroidX
+    implementation Design.appcompat
+
+    //kotlin
+    implementation Kotlin.core
+
+    //Test
+    testImplementation TestImpl.junit
+    androidTestImplementation TestImpl.runner
+    androidTestImplementation TestImpl.espresso
+    implementation fileTree(dir: 'libs', includes: ['*.jar'])
+}

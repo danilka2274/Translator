@@ -5,8 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.model.DataModel
 import com.example.translator.databinding.ActivityHistoryRecyclerviewItemBinding
-import com.example.translator.model.data.DataModel
+
 
 class HistoryAdapter(
     private var onListItemClickListener: OnListItemClickListener,
