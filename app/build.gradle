@@ -1,19 +1,19 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 android {
     namespace 'com.example.translator'
-    compileSdk 33
+    compileSdk Config.compile_sdk
 
     defaultConfig {
-        applicationId "com.example.translator"
-        minSdk 29
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
-
+        applicationId Config.application_id
+        minSdk Config.min_sdk
+        targetSdk Config.target_sdk
+        versionCode Releases.version_code
+        versionName Releases.version_name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -24,26 +24,49 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility Config.java_version
+        targetCompatibility Config.java_version
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = Config.jvm_target
     }
-
     buildFeatures {
-        viewBinding true
+        viewBinding Config.view_binding
     }
-
 }
 
 dependencies {
+    //Modules
+    implementation project(Modules.core)
+    implementation project(Modules.model)
+    implementation project(Modules.repository)
+    implementation project(Modules.utils)
 
-    implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    //AndroidX
+    implementation Design.appcompat
+
+    //Design
+    implementation Design.material
+    implementation Design.swipe_refresh_layout
+
+    //Kotlin
+    implementation Kotlin.core
+
+    //Koin for Android
+    implementation Koin.koin_core
+    implementation Koin.koin_android
+
+    //Room
+    implementation Room.runtime
+    kapt Room.compiler
+    implementation Room.room_ktx
+
+    //Coil
+    implementation Coil.coil
+
+    //Test
+    testImplementation TestImpl.junit
+    androidTestImplementation TestImpl.runner
+    androidTestImplementation TestImpl.espresso
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
