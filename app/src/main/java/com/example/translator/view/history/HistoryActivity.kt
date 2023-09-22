@@ -6,15 +6,13 @@ import com.example.translator.model.data.AppState
 import com.example.translator.model.data.DataModel
 import com.example.translator.view.base.BaseActivity
 import com.example.translator.view.descriptionscreen.DescriptionActivity
-import org.koin.android.scope.AndroidScopeComponent
-import org.koin.androidx.scope.activityScope
-import org.koin.core.scope.Scope
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class HistoryActivity : BaseActivity<AppState, HistoryInteractor>(), AndroidScopeComponent {
 
-    override val scope: Scope by activityScope()
-    override val model: HistoryViewModel by scope.inject()
+class HistoryActivity : BaseActivity<AppState, HistoryInteractor>() {
+
     private lateinit var binding: ActivityHistoryBinding
+    override val model: HistoryViewModel by viewModel()
     private val adapter: HistoryAdapter by lazy { HistoryAdapter(onListItemClickListener) }
     private val onListItemClickListener: HistoryAdapter.OnListItemClickListener =
         object : HistoryAdapter.OnListItemClickListener {

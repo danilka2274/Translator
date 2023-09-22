@@ -1,31 +1,37 @@
 package com.example.translator.view.main
 
+import android.animation.ObjectAnimator
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
+import android.view.View
+import android.view.ViewTreeObserver
+import android.view.animation.AnticipateInterpolator
+import androidx.annotation.RequiresApi
+import androidx.core.animation.doOnEnd
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.example.translator.R
+import com.example.translator.databinding.ActivityMainBinding
 import com.example.translator.model.data.AppState
 import com.example.translator.model.data.DataModel
-import com.example.translator.utils.ui.viewById
 import com.example.translator.view.base.BaseActivity
 import com.example.translator.view.descriptionscreen.DescriptionActivity
 import com.example.translator.view.history.HistoryActivity
-import org.koin.android.scope.AndroidScopeComponent
-import org.koin.androidx.scope.activityScope
-import org.koin.core.scope.Scope
 
-class MainActivity : BaseActivity<AppState, MainInteractor>(), AndroidScopeComponent {
+private const val SLIDE_LEFT_DURATION = 1000L
+private const val COUNTDOWN_DURATION = 2000L
+private const val COUNTDOWN_INTERVAL = 1000L
 
-    override val scope: Scope by activityScope()
-    override val model: MainViewModel by scope.inject()
-    private val searchEditText by viewById<EditText>(R.id.search_edit_text)
-    private val recyclerView by viewById<RecyclerView>(R.id.recycler_view)
+class MainActivity : BaseActivity<AppState, MainInteractor>() {
+
+    private lateinit var binding: ActivityMainBinding
+    override val model: MainViewModel by viewModel()
     private val adapter: MainAdapter by lazy { MainAdapter(onListItemClickListener) }
     private val onListItemClickListener: MainAdapter.OnListItemClickListener =
         object : MainAdapter.OnListItemClickListener {
@@ -44,11 +50,11 @@ class MainActivity : BaseActivity<AppState, MainInteractor>(), AndroidScopeCompo
         }
 
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            if (searchEditText.text != null && searchEditText.text.toString()
+            if (binding.searchEditText.text != null && binding.searchEditText.text.toString()
                     .isNotEmpty()
             ) {
                 if (isNetworkAvailable) {
-                    model.getData(searchEditText.text.toString(), true)
+                    model.getData(binding.searchEditText.text.toString(), true)
                 } else {
                     showNoInternetConnectionDialog()
                 }
@@ -61,9 +67,61 @@ class MainActivity : BaseActivity<AppState, MainInteractor>(), AndroidScopeCompo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setDefaultSplashScreen()
         initViewModel()
         initViews()
+    }
+
+    private fun setDefaultSplashScreen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            setSplashScreenHideAnimation()
+        }
+
+        setSplashScreenDuration()
+    }
+
+    @RequiresApi(31)
+    private fun setSplashScreenHideAnimation() {
+        splashScreen.setOnExitAnimationListener { splashScreenView ->
+            val slideLeft = ObjectAnimator.ofFloat(
+                splashScreenView,
+                View.TRANSLATION_X,
+                0f,
+                -splashScreenView.height.toFloat()
+            )
+            slideLeft.interpolator = AnticipateInterpolator()
+            slideLeft.duration = SLIDE_LEFT_DURATION
+
+            slideLeft.doOnEnd { splashScreenView.remove() }
+            slideLeft.start()
+        }
+    }
+
+    private fun setSplashScreenDuration() {
+        var isHideSplashScreen = false
+
+        object : CountDownTimer(COUNTDOWN_DURATION, COUNTDOWN_INTERVAL) {
+            override fun onTick(millisUntilFinished: Long) {}
+            override fun onFinish() {
+                isHideSplashScreen = true
+            }
+        }.start()
+
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return if (isHideSplashScreen) {
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+        )
     }
 
     private fun initViewModel() {
@@ -71,9 +129,13 @@ class MainActivity : BaseActivity<AppState, MainInteractor>(), AndroidScopeCompo
     }
 
     private fun initViews() {
-        searchEditText.addTextChangedListener(textWatcher)
-        recyclerView.layoutManager = LinearLayoutManager(applicationContext)
-        recyclerView.adapter = adapter
+        binding.searchEditText.addTextChangedListener(textWatcher)
+        binding.recyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        binding.recyclerView.adapter = adapter
+    }
+
+    override fun setDataToView(data: List<DataModel>) {
+        adapter.setData(data)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -89,9 +151,5 @@ class MainActivity : BaseActivity<AppState, MainInteractor>(), AndroidScopeCompo
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun setDataToView(data: List<DataModel>) {
-        adapter.setData(data)
     }
 }

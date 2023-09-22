@@ -1,47 +1,45 @@
 package com.example.translator.view.base
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
+import org.koin.android.ext.android.inject
 import com.example.translator.R
 import com.example.translator.databinding.LoadingLayoutBinding
 import com.example.translator.model.data.AppState
 import com.example.translator.model.data.DataModel
 import com.example.translator.utils.network.OnlineLiveData
 import com.example.translator.utils.ui.AlertDialogFragment
-import com.example.translator.utils.ui.viewById
 import com.example.translator.viewmodel.BaseViewModel
 import com.example.translator.viewmodel.Interactor
-import com.google.android.material.snackbar.Snackbar
-
-const val DIALOG_FRAGMENT_TAG = "74a54328-5d62-46bf-ab6b-cbf5d8c79522"
 
 abstract class BaseActivity<T : AppState, I : Interactor<T>> : AppCompatActivity() {
 
     private lateinit var binding: LoadingLayoutBinding
     abstract val model: BaseViewModel<T>
+    private val onlineLiveData: OnlineLiveData by inject()
     protected var isNetworkAvailable: Boolean = true
-    private val snackbarNetwork: Snackbar
-        get() {
-            val mainView by viewById<View>(android.R.id.content)
-            return Snackbar.make(mainView.rootView, resources.getString(R.string.dialog_message_device_is_offline), Snackbar.LENGTH_INDEFINITE)
-        }
+    private val snackbarNoNetwork: Snackbar by lazy {
+        val mainView = findViewById<View>(android.R.id.content)
+        return@lazy Snackbar.make(mainView,
+            resources.getString(R.string.dialog_message_device_is_offline),
+            Snackbar.LENGTH_INDEFINITE)
+    }
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         subscribeToNetworkChange()
     }
 
     private fun subscribeToNetworkChange() {
-        OnlineLiveData(this).observe(
-            this@BaseActivity,
+        onlineLiveData.observe(
+            this,
             {
                 isNetworkAvailable = it
-                if (!isNetworkAvailable) {
-                    snackbarNetwork.show()
-                } else {
-                    snackbarNetwork.dismiss()
+                when (isNetworkAvailable) {
+                    false -> snackbarNoNetwork.show()
+                    true -> snackbarNoNetwork.dismiss()
                 }
             })
     }
@@ -94,7 +92,7 @@ abstract class BaseActivity<T : AppState, I : Interactor<T>> : AppCompatActivity
         )
     }
 
-    protected fun showAlertDialog(title: String?, message: String?) {
+    private fun showAlertDialog(title: String?, message: String?) {
         AlertDialogFragment.newInstance(title, message)
             .show(supportFragmentManager, DIALOG_FRAGMENT_TAG)
     }
@@ -112,4 +110,8 @@ abstract class BaseActivity<T : AppState, I : Interactor<T>> : AppCompatActivity
     }
 
     abstract fun setDataToView(data: List<DataModel>)
+
+    companion object {
+        const val DIALOG_FRAGMENT_TAG = "74a54328-5d62-46bf-ab6b-cbf5d8c79522"
+    }
 }

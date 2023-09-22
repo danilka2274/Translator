@@ -7,22 +7,18 @@ import android.view.MenuItem
 import android.widget.ImageView
 import coil.load
 import coil.transform.RoundedCornersTransformation
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import com.example.translator.R
 import com.example.translator.databinding.ActivityDescriptionBinding
 import com.example.translator.model.data.AppState
 import com.example.translator.model.data.DataModel
 import com.example.translator.utils.convertMeaningsToString
-import com.example.translator.utils.network.OnlineLiveData
 import com.example.translator.view.base.BaseActivity
-import org.koin.android.scope.AndroidScopeComponent
-import org.koin.androidx.scope.activityScope
-import org.koin.core.scope.Scope
 
-class DescriptionActivity : BaseActivity<AppState, DescriptionInteractor>(), AndroidScopeComponent {
+class DescriptionActivity : BaseActivity<AppState, DescriptionInteractor>() {
 
-    override val scope: Scope by activityScope()
-    override val model: DescriptionViewModel by scope.inject()
     private lateinit var binding: ActivityDescriptionBinding
+    override val model: DescriptionViewModel by viewModel()
     private var searchWord: String? = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,16 +69,12 @@ class DescriptionActivity : BaseActivity<AppState, DescriptionInteractor>(), And
     }
 
     private fun startLoadingOrShowError() {
-        OnlineLiveData(this).observe(
-            this@DescriptionActivity,
-            {
-                if (it) {
-                    searchWord?.let { word -> model.getData(word, true) }
-                } else {
-                    showNoInternetConnectionDialog()
-                    stopRefreshAnimationIfNeeded()
-                }
-            })
+        if (isNetworkAvailable) {
+            searchWord?.let { word -> model.getData(word, true) }
+        } else {
+            searchWord?.let { word -> model.getData(word, false) }
+            stopRefreshAnimationIfNeeded()
+        }
     }
 
     private fun stopRefreshAnimationIfNeeded() {
